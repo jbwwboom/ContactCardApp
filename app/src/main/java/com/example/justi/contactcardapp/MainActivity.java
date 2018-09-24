@@ -1,29 +1,23 @@
 package com.example.justi.contactcardapp;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.example.justi.contactcardapp.models.RandomUser;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RandomUserListener {
 
     private ListView listView;
     private ArrayAdapter<RandomUser> adapter;
+    private ArrayList<RandomUser> randomUsers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,29 +26,32 @@ public class MainActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.listView);
 
-        RandomUserFactory.getInstance(this).volleyGet(10);
+        final RandomUserFactory factory  = RandomUserFactory.getInstance(this,this );
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                // Actions to do after 1 seconds
-                Log.d("Size of Random Users", RandomUserFactory.getInstance(getApplicationContext()).getUsers().getRandomUsers().size() + "");
-                adapter = new UserAdapter(getApplicationContext(), RandomUserFactory.getInstance(getApplicationContext()).getUsers().getRandomUsers());
-                listView.setAdapter(adapter);
-            }
-        }, 1000);
-
+        factory.volleyGet(100);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                RandomUser user = RandomUserFactory.getInstance(getApplicationContext()).getUsers().getRandomUsers().get(position);
+                RandomUser user = randomUsers.get(position);
 
                 Intent intent = new Intent(getApplicationContext(), DetailedActivity.class);
                 intent.putExtra("USER", user);
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onResponse(ArrayList<RandomUser> randomUsers) {
+        this.randomUsers.addAll(randomUsers);
+        Log.d("Response: ", randomUsers.size() + "");
+        adapter = new UserAdapter(getApplicationContext(), randomUsers);
+        listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onError(Error error) {
+        Log.d("Error:", error.toString());
     }
 }

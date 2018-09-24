@@ -18,7 +18,6 @@ import com.example.justi.contactcardapp.models.RandomUser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class UserAdapter extends ArrayAdapter<RandomUser> {
 

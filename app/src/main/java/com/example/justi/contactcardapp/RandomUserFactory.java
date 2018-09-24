@@ -3,44 +3,34 @@ package com.example.justi.contactcardapp;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.volley.Cache;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.justi.contactcardapp.models.Converter;
-import com.example.justi.contactcardapp.models.RandomUser;
 import com.example.justi.contactcardapp.models.RandomUsers;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 public class RandomUserFactory {
 
     private RandomUsers users = null;
 
-    // Private constructor, huh?
-    private RandomUserFactory(Context context) {
-        this.context = context;
-    }
-
-    public RandomUsers getUsers() {
-        return users;
-    }
-
     private static RandomUserFactory instance = null;
 
     private Context context;
 
+    private RandomUserListener listener;
+
+    private RandomUserFactory(Context context , RandomUserListener listener) {
+        this.context = context;
+        this.listener = listener;
+    }
+
     // Singleton
-    public static RandomUserFactory getInstance(Context context) {
+    public static RandomUserFactory getInstance(Context context, RandomUserListener listener) {
         if( instance == null ) {
-            instance = new RandomUserFactory(context);
+            instance = new RandomUserFactory(context, listener);
         }
         return instance;
     }
@@ -59,17 +49,20 @@ public class RandomUserFactory {
                         Log.d("Response is: ", response.substring(0,500));
                         try{
                             users = Converter.fromJsonString(response);
+                            listener.onResponse(users.getRandomUsers());
                         }catch (Exception e){
                             Log.d(e.getLocalizedMessage(), "Error");
+                            listener.onError(new Error(e.getLocalizedMessage()));
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                listener.onError(new Error(error.getLocalizedMessage()));
             }
         });
 
-    // Add the request to the RequestQueue.
+        // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
