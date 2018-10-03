@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity implements RandomUserListene
         setContentView(R.layout.activity_main);
 
         listView = findViewById(R.id.listView);
+        adapter = new UserAdapter(getApplicationContext(), randomUsers);
+        listView.setAdapter(adapter);
 
         final RandomUserFactory factory  = RandomUserFactory.getInstance(this,this );
 
@@ -46,8 +48,7 @@ public class MainActivity extends AppCompatActivity implements RandomUserListene
     public void onResponse(ArrayList<RandomUser> randomUsers) {
         this.randomUsers.addAll(randomUsers);
         Log.d("Response: ", randomUsers.size() + "");
-        adapter = new UserAdapter(getApplicationContext(), randomUsers);
-        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
