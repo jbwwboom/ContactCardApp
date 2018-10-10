@@ -11,7 +11,9 @@ import com.squareup.picasso.Picasso;
 
 public class DetailedActivity extends AppCompatActivity {
     ImageView image;
-    TextView textView;
+    TextView nameText;
+    TextView genderText;
+    TextView emailText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,14 +21,18 @@ public class DetailedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detailed);
 
         image = findViewById(R.id.imageView);
-        textView = findViewById(R.id.nameView);
+        nameText = findViewById(R.id.nameText);
+        genderText = findViewById(R.id.genderText);
+        emailText = findViewById(R.id.emailText);
 
         Intent intent = getIntent();
         RandomUser user = (RandomUser) intent.getSerializableExtra("USER");
 
         Picasso.get().load(user.getPicture().getLarge()).into(image);
 
-        textView.setText(user.getName().toString());
+        nameText.setText(user.getName().toString());
+        genderText.setText(user.getGender() + " " + user.getDob().getAge());
+        emailText.setText(user.getEmail());
 
     }
 }
